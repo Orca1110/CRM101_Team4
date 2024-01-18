@@ -11,6 +11,7 @@ import java.util.List;
 import com.javaex.vo.BoardVo;
 
 public class BoardDaoImpl implements BoardDao {
+
   private Connection getConnection() throws SQLException {
     Connection conn = null;
     try {
@@ -22,246 +23,251 @@ public class BoardDaoImpl implements BoardDao {
     }
     return conn;
   }
-  
-	public List<BoardVo> getList() {
 
-		// 0. import java.sql.*;
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		List<BoardVo> list = new ArrayList<BoardVo>();
+  public List<BoardVo> getList() {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    List<BoardVo> list = new ArrayList<BoardVo>();
 
-		try {
-			conn = getConnection();
+    try {
+      conn = getConnection();
 
-			// 3. SQL문 준비 / 바인딩 / 실행
-			String query = "select b.no, b.title, b.hit, b.reg_date, b.user_no, u.name "
-					     + " from board b, users u "
-					     + " where b.user_no = u.no "
-					     + " order by no desc";
-			
-			pstmt = conn.prepareStatement(query);
+      String query = "select b.no, b.title, b.hit, b.reg_date, b.user_no, u.name "
+          + " from board b, users u "
+          + " where b.user_no = u.no "
+          + " order by no desc";
 
-			rs = pstmt.executeQuery();
-			// 4.결과처리
-			while (rs.next()) {
-				int no = rs.getInt("no");
-				String title = rs.getString("title");
-				int hit = rs.getInt("hit");
-				String regDate = rs.getString("reg_date");
-				int userNo = rs.getInt("user_no");
-				String userName = rs.getString("name");
-				
-				BoardVo vo = new BoardVo(no, title, hit, regDate, userNo, userName);
-				list.add(vo);
-			}
-			
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			// 5. 자원정리
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				System.out.println("error:" + e);
-			}
+      pstmt = conn.prepareStatement(query);
 
-		}
-		
-		return list;
+      rs = pstmt.executeQuery();
 
-	}
+      while (rs.next()) {
+        int no = rs.getInt("no");
+        String title = rs.getString("title");
+        int hit = rs.getInt("hit");
+        String regDate = rs.getString("reg_date");
+        int userNo = rs.getInt("user_no");
+        String userName = rs.getString("name");
 
-	
-	public BoardVo getBoard(int no) {
+        BoardVo vo = new BoardVo(no, title, hit, regDate, userNo, userName);
+        list.add(vo);
+      }
 
-		// 0. import java.sql.*;
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		BoardVo boardVo = null;
-		
-		try {
-		  conn = getConnection();
+    } catch (SQLException e) {
+      System.out.println("error:" + e);
+    } finally {
+      try {
+        if (rs != null) {
+          rs.close();
+        }
+        if (pstmt != null) {
+          pstmt.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        System.out.println("error:" + e);
+      }
+    }
 
-			// 3. SQL문 준비 / 바인딩 / 실행
-			String query = "select b.no, b.title, b.content, b.hit, b.reg_date, b.user_no, u.name "
-					     + "from board b, users u "
-					     + "where b.user_no = u.no "
-					     + "and b.no = ?";
-			
-			pstmt = conn.prepareStatement(query);
-			pstmt.setInt(1, no);
-			
-			rs = pstmt.executeQuery();
-			// 4.결과처리
-			while (rs.next()) {
-				String title = rs.getString("title");
-				String content = rs.getString("content");
-				int hit = rs.getInt("hit");
-				String regDate = rs.getString("reg_date");
-				int userNo = rs.getInt("user_no");
-				String userName = rs.getString("name");
-				
-				boardVo = new BoardVo(no, title, content, hit, regDate, userNo, userName);
-			}
-			
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			// 5. 자원정리
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				System.out.println("error:" + e);
-			}
+    return list;
+  }
 
-		}
-		System.out.println(boardVo);
-		return boardVo;
+  public BoardVo getBoard(int no) {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    BoardVo boardVo = null;
 
-	}
-	
-	public int insert(BoardVo vo) {
-		// 0. import java.sql.*;
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		int count = 0;
+    try {
+      conn = getConnection();
 
-		try {
-		  conn = getConnection();
-		  
-		  System.out.println("vo.userNo : ["+vo.getUserNo()+"]");
-      System.out.println("vo.title : ["+vo.getTitle()+"]");
-      System.out.println("vo.content : ["+vo.getContent()+"]");
-      
-			// 3. SQL문 준비 / 바인딩 / 실행
-			String query = "insert into board values (seq_board_no.nextval, ?, ?, 0, sysdate, ?,0,0,0)";
-			pstmt = conn.prepareStatement(query);
+      // Update the hit count when fetching the post
+      updateHit(no);
 
-			pstmt.setString(1, vo.getTitle());
-			pstmt.setString(2, vo.getContent());
-			pstmt.setInt(3, vo.getUserNo());
-			
-			
-      
-			count = pstmt.executeUpdate();
+      String query = "select b.no, b.title, b.content, b.hit, b.reg_date, b.user_no, u.name "
+          + "from board b, users u "
+          + "where b.user_no = u.no "
+          + "and b.no = ?";
 
-			// 4.결과처리
-			System.out.println(count + "건 등록");
+      pstmt = conn.prepareStatement(query);
+      pstmt.setInt(1, no);
 
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			// 5. 자원정리
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				System.out.println("error:" + e);
-			}
+      rs = pstmt.executeQuery();
 
-		}
+      while (rs.next()) {
+        String title = rs.getString("title");
+        String content = rs.getString("content");
+        int hit = rs.getInt("hit");
+        String regDate = rs.getString("reg_date");
+        int userNo = rs.getInt("user_no");
+        String userName = rs.getString("name");
 
-		return count;
-	}
-	
-	
-	public int delete(int no) {
-		// 0. import java.sql.*;
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		int count = 0;
+        boardVo = new BoardVo(no, title, content, hit, regDate, userNo, userName);
+      }
 
-		try {
-		  conn = getConnection();
+    } catch (SQLException e) {
+      System.out.println("error:" + e);
+    } finally {
+      try {
+        if (rs != null) {
+          rs.close();
+        }
+        if (pstmt != null) {
+          pstmt.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        System.out.println("error:" + e);
+      }
+    }
 
-			// 3. SQL문 준비 / 바인딩 / 실행
-			String query = "delete from board where no = ?";
-			pstmt = conn.prepareStatement(query);
+    return boardVo;
+  }
 
-			pstmt.setInt(1, no);
+  public int insert(BoardVo vo) {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    int count = 0;
 
-			count = pstmt.executeUpdate();
+    try {
+      conn = getConnection();
 
-			// 4.결과처리
-			System.out.println(count + "건 삭제");
+      System.out.println("vo.userNo : [" + vo.getUserNo() + "]");
+      System.out.println("vo.title : [" + vo.getTitle() + "]");
+      System.out.println("vo.content : [" + vo.getContent() + "]");
 
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			// 5. 자원정리
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				System.out.println("error:" + e);
-			}
+      String query = "insert into board values (seq_board_no.nextval, ?, ?, 0, sysdate, ?)";
+      pstmt = conn.prepareStatement(query);
 
-		}
+      pstmt.setString(1, vo.getTitle());
+      pstmt.setString(2, vo.getContent());
+      pstmt.setInt(3, vo.getUserNo());
 
-		return count;
-	}
-	
-	
-	public int update(BoardVo vo) {
-		// 0. import java.sql.*;
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		int count = 0;
+      count = pstmt.executeUpdate();
 
-		try {
-		  conn = getConnection();
+      System.out.println(count + "건 등록");
 
-			// 3. SQL문 준비 / 바인딩 / 실행
-			String query = "update board set title = ?, content = ? where no = ? ";
-			pstmt = conn.prepareStatement(query);
+    } catch (SQLException e) {
+      System.out.println("error:" + e);
+    } finally {
+      try {
+        if (pstmt != null) {
+          pstmt.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        System.out.println("error:" + e);
+      }
+    }
 
-			pstmt.setString(1, vo.getTitle());
-			pstmt.setString(2, vo.getContent());
-			pstmt.setInt(3, vo.getNo());
+    return count;
+  }
 
-			count = pstmt.executeUpdate();
+  public int delete(int no) {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    int count = 0;
 
-			// 4.결과처리
-			System.out.println(count + "건 수정");
+    try {
+      conn = getConnection();
 
-		} catch (SQLException e) {
-			System.out.println("error:" + e);
-		} finally {
-			// 5. 자원정리
-			try {
-				if (pstmt != null) {
-					pstmt.close();
-				}
-				if (conn != null) {
-					conn.close();
-				}
-			} catch (SQLException e) {
-				System.out.println("error:" + e);
-			}
+      String query = "delete from board where no = ?";
+      pstmt = conn.prepareStatement(query);
 
-		}
+      pstmt.setInt(1, no);
 
-		return count;
-	}
-	
+      count = pstmt.executeUpdate();
+
+      System.out.println(count + "건 삭제");
+
+    } catch (SQLException e) {
+      System.out.println("error:" + e);
+    } finally {
+      try {
+        if (pstmt != null) {
+          pstmt.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        System.out.println("error:" + e);
+      }
+    }
+
+    return count;
+  }
+
+  public int update(BoardVo vo) {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+    int count = 0;
+
+    try {
+      conn = getConnection();
+
+      String query = "update board set title = ?, content = ? where no = ? ";
+      pstmt = conn.prepareStatement(query);
+
+      pstmt.setString(1, vo.getTitle());
+      pstmt.setString(2, vo.getContent());
+      pstmt.setInt(3, vo.getNo());
+
+      count = pstmt.executeUpdate();
+
+      System.out.println(count + "건 수정");
+
+    } catch (SQLException e) {
+      System.out.println("error:" + e);
+    } finally {
+      try {
+        if (pstmt != null) {
+          pstmt.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        System.out.println("error:" + e);
+      }
+    }
+
+    return count;
+  }
+
+  public void updateHit(int no) {
+    Connection conn = null;
+    PreparedStatement pstmt = null;
+
+    try {
+      conn = getConnection();
+
+      String query = "update board set hit = hit + 1 where no = ?";
+      pstmt = conn.prepareStatement(query);
+      pstmt.setInt(1, no);
+
+      pstmt.executeUpdate();
+
+    } catch (SQLException e) {
+      System.out.println("error:" + e);
+    } finally {
+      try {
+        if (pstmt != null) {
+          pstmt.close();
+        }
+        if (conn != null) {
+          conn.close();
+        }
+      } catch (SQLException e) {
+        System.out.println("error:" + e);
+      }
+    }
+  }
 }
