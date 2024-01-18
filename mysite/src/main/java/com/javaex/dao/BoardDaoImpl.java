@@ -141,7 +141,7 @@ public class BoardDaoImpl implements BoardDao {
       System.out.println("vo.title : [" + vo.getTitle() + "]");
       System.out.println("vo.content : [" + vo.getContent() + "]");
 
-      String query = "insert into board values (seq_board_no.nextval, ?, ?, 0, sysdate, ?)";
+      String query = "insert into board values (seq_board_no.nextval, ?, ?, 0, sysdate, ?,0,0,0)";
       pstmt = conn.prepareStatement(query);
 
       pstmt.setString(1, vo.getTitle());
