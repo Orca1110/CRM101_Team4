@@ -92,11 +92,13 @@
 					pageEnd= ${pageEnd }
 					start= ${start }
 					-->
+
 				<c:if test="${totalPage != 0}">
 					<ul>
 						<c:if test="${nowBlock > 1}">
 							<li><a href="javascript:block('${nowBlock -1 }')">◀</a></li>
-						</c:if>					
+						</c:if>
+									
 						<c:forEach begin="${pageStart}" end="${pageEnd}" var="currentPage">
 						    <c:url value="javascript:pageing('${currentPage}')" var="pageLink"/>
 						    <c:choose>
@@ -112,7 +114,6 @@
 						<c:if test="${totalBlock > nowBlock}">
 							<li><a href="javascript:block('${nowBlock +1 }')">▶</a></li>
 						</c:if>
-						
 					</ul>
 				</c:if>
 			<!-- 페이징 및 블럭 처리 끝 -->

@@ -312,20 +312,20 @@ public class BoardDaoImpl implements BoardDao {
 				sql = "select count(no) from board";
 				pstmt = conn.prepareStatement(sql);
 			} else {
-				sql = "SELECT count(NO)\r\n"
-					+ "FROM (SELECT  B.NO, B.TITLE, U.NAME AS NAME, B.HIT, B.REG_DATE, U.NO AS USER_NO\r\n"
-					+ "		FROM BOARD B, USERS U \r\n"
-					+ "		WHERE B.USER_NO = U.NO) \r\n"
-					+ "WHERE ? LIKE ? ";
+				sql = "SELECT count(NO) \r\n "
+					+ " FROM (SELECT  B.NO, B.TITLE, U.NAME AS NAME, B.HIT, B.REG_DATE, U.NO AS USER_NO \r\n "
+					+ "		FROM BOARD B, USERS U \r\n "
+					+ "		WHERE B.USER_NO = U.NO) \r\n "
+					+ " WHERE " + keyField + " LIKE ? ";
 				pstmt = conn.prepareStatement(sql);
-				pstmt.setString(1, keyField);
-				pstmt.setString(2, "%" + keyWord + "%");
+				pstmt.setString(1, "%" + keyWord + "%");
 
 				System.out.println("getTotalCount로 들어오나 봅니다 ");
 			}
 			rs = pstmt.executeQuery();
 			if (rs.next()) {
 				totalCount = rs.getInt(1);
+				System.out.println("totalCount"+totalCount);
 			}
 		}catch (SQLException e) {
 		      System.out.println("error:" + e);

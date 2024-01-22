@@ -30,7 +30,7 @@ public class BoardServlet extends HttpServlet {
 			// 리스트 가져오기
 			
 			//페이지네이션
-			int totalRecord=0; //전체레코드수 : 페이징 하려면 계산해야해서 필요함
+			//int totalRecord=0; //전체레코드수 : 페이징 하려면 계산해야해서 필요함
 			int numPerPage=10; // 페이지당 레코드 수 : (초기값) 페이지당 10개 보여줄게요
 			int pagePerBlock=10; //블럭당 페이지수 
 			
@@ -70,13 +70,20 @@ public class BoardServlet extends HttpServlet {
 			    }
 			}
 			 
-			totalRecord = dao.getTotalCount(keyField, keyWord); //1
+			int totalRecord = dao.getTotalCount(keyField, keyWord); //1
 			totalPage = (int)Math.ceil((double)totalRecord / numPerPage);  //전체페이지수 1: 올림이나 소수점 버리기
 			nowBlock = (int)Math.ceil((double)nowPage/pagePerBlock); //현재블럭 계산 1		  
 			totalBlock = (int)Math.ceil((double)totalPage / pagePerBlock);  //전체블럭계산 1
 			
-			List<BoardVo> list = dao.getList( keyField, keyWord, start, end);
-			System.out.println(list.toString());
+			System.out.println("totalRecord="+totalRecord);
+			
+			int pageStart = (nowBlock - 1) * pagePerBlock + 1; //하단 페이지 시작번호
+			int pageEnd = pageStart + pagePerBlock - 1;
+			if (pageEnd > totalPage) {
+				pageEnd = totalPage;
+			}
+//			int pageEnd = ((pageStart + pagePerBlock) <= totalPage) ? (pageStart + pagePerBlock) : totalPage + 1; //하단 페이지 끝번호
+
 		    // JSP 페이지로 데이터 전달
 			request.setAttribute("totalRecord", totalRecord);
 			request.setAttribute("nowPage", nowPage);
@@ -86,22 +93,15 @@ public class BoardServlet extends HttpServlet {
 			request.setAttribute("start", start);
 			request.setAttribute("end", end);
 			request.setAttribute("keyField", keyField);
-			request.setAttribute("keyWord", keyWord);
-			request.setAttribute("listSize", list.size()); // 리스트 사이즈 설정
-				
-//			int pageStart = (nowBlock - 1) * pagePerBlock + 1; //하단 페이지 시작번호
-//			int pageEnd = ((pageStart + pagePerBlock) <= totalPage) ? (pageStart + pagePerBlock) : totalPage + 1; //하단 페이지 끝번호
-
-			int pageStart = (nowBlock - 1) * pagePerBlock + 1; //하단 페이지 시작번호
-			int pageEnd = pageStart + pagePerBlock - 1;
-			if (pageEnd > totalPage) {
-			    pageEnd = totalPage;
-			}
+			request.setAttribute("keyWord", keyWord);				
 
 			request.setAttribute("nowBlock", nowBlock); 
 			request.setAttribute("totalBlock", totalBlock); 
 			request.setAttribute("pageStart", pageStart);
 			request.setAttribute("pageEnd", pageEnd);
+			
+			List<BoardVo> list = dao.getList( keyField, keyWord, start, end);
+			System.out.println(list.toString());
 			
 			// BoardServlet.java의 doGet 메서드 내에 로그 추가
 			System.out.println("nowPage: " + nowPage);
