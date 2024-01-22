@@ -57,7 +57,7 @@ public class BoardDaoImpl implements BoardDao {
 	        			+ "			FROM (    SELECT B.NO, B.TITLE, U.NAME, B.HIT, B.REG_DATE, U.NO AS USER_NO    \r\n"
 	        			+ "						FROM BOARD B, USERS U    \r\n"
 	        			+ "						WHERE B.USER_NO = U.NO\r\n"
-	        			+ "						AND B.TITLE LIKE ? \r\n"
+	        			+ "						AND "+ keyField +" LIKE ? \r\n"
 	        			+ "						ORDER BY NO DESC   ) A \r\n"
 	        			+ "			WHERE ROWNUM <= ?+? )\r\n"
 	        			+ "WHERE RN > ?";

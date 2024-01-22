@@ -45,7 +45,7 @@ public class BoardServlet extends HttpServlet {
 			}
 			
 			int start = (nowPage - 1) * numPerPage + 1; //디비의 select 시작번호
-			int end = start + numPerPage - 1; //시작번호로 부터 가져올 select 갯수 : rownum 쓸 때 필요함.
+			int end = start + numPerPage - 1;	//시작번호로 부터 가져올 select 갯수 : rownum 쓸 때 필요함.
 			
 			String keyWord = "";
 			String keyField = ""; //검색을 위해 준비된 변수들	
@@ -89,13 +89,15 @@ public class BoardServlet extends HttpServlet {
 			request.setAttribute("keyWord", keyWord);
 			request.setAttribute("listSize", list.size()); // 리스트 사이즈 설정
 				
+//			int pageStart = (nowBlock - 1) * pagePerBlock + 1; //하단 페이지 시작번호
+//			int pageEnd = ((pageStart + pagePerBlock) <= totalPage) ? (pageStart + pagePerBlock) : totalPage + 1; //하단 페이지 끝번호
 
 			int pageStart = (nowBlock - 1) * pagePerBlock + 1; //하단 페이지 시작번호
 			int pageEnd = pageStart + pagePerBlock - 1;
 			if (pageEnd > totalPage) {
 			    pageEnd = totalPage;
 			}
-			
+
 			request.setAttribute("nowBlock", nowBlock); 
 			request.setAttribute("totalBlock", totalBlock); 
 			request.setAttribute("pageStart", pageStart);
