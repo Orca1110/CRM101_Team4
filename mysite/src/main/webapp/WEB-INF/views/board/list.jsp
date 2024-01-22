@@ -16,7 +16,6 @@
 	
 	function pageing(page) {
 	    document.listFrm.nowPage.value = page;
-	   // document.listFrm.action = "/mysite/board";
 	    document.listFrm.submit();
 	}
 	
@@ -40,19 +39,17 @@
 		<div id="content">
 			<div id="board">
 			
-				<form id="search_form" action="/mysite/board?a=list" method="get">
-				<label for="keyField">검색 옵션:</label>
-				<select id="keyField" name="keyField">
-					<option value="u.name" ${param.keyField == 'u.name' ? 'selected' : ''}>글쓴이</option>
-          <option value="b.reg_date" ${param.keyField == 'b.reg_date' ? 'selected' : ''}>작성일</option>
-          <option value="b.title" ${param.keyField == 'b.title' ? 'selected' : ''}>제목</option>
-          <option value="b.content" ${param.keyField == 'b.content' ? 'selected' : ''}>내용</option>
-      	</select>				
+				<form id="search_form" action="/mysite/board" method="get">
+					<label for="keyField">검색 옵션:</label>
+					<select id="keyField" name="keyField">
+						<option value="name" >글쓴이</option>
+						<option value="reg_date" >작성일</option>
+						<option value="title" >제 목</option>
+						<option value="content" >내 용</option>
+			      	</select>				
 					<input type="text" id="keyWord" name="keyWord" value="${param.keyWord}">
-					<input type="hidden" name="keyWord" value="${param.keyWord}">
-    			<input type="hidden" name="keyField" value="${param.keyField}">
+    				<input type="hidden" name="keyField" value="${param.keyField}">
 					<input type="hidden" name="a" value="list">
-					<input type="hidden" name="nowPage" value="1">
 					<input type="hidden" name="nowPage" value="1">
 					<input type="submit" value="찾기" >
 	   			
@@ -99,8 +96,7 @@
 					<ul>
 						<c:if test="${nowBlock > 1}">
 							<li><a href="javascript:block('${nowBlock -1 }')">◀</a></li>
-						</c:if>		
-									
+						</c:if>					
 						<c:forEach begin="${pageStart}" end="${pageEnd}" var="currentPage">
 						    <c:url value="javascript:pageing('${currentPage}')" var="pageLink"/>
 						    <c:choose>
@@ -141,5 +137,4 @@
 			<c:import url="/WEB-INF/views/includes/footer.jsp"></c:import>
 	</div><!-- /container -->
 </body>
-</html>		
-		
+</html>	
