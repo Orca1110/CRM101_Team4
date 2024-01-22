@@ -7,19 +7,46 @@
 <meta http-equiv="content-type" content="text/html; charset=utf-8">
 <link href="/mysite/assets/css/board.css" rel="stylesheet" type="text/css">
 <title>Mysite</title>
+
+<script type="text/javascript">
+	function list() {
+		document.listFrm.action = "list.jsp";
+		document.listFrm.submit();
+	}
+	
+	function pageing(page) {
+	    document.listFrm.nowPage.value = page;
+	   // document.listFrm.action = "/mysite/board";
+	    document.listFrm.submit();
+	}
+	
+	function block(value) {
+	    document.listFrm.nowPage.value = 10 * (value - 1) + 1;
+	    document.listFrm.submit();
+	}
+	
+	function read(num){
+		document.readFrm.num.value=num;
+		document.readFrm.action="read.jsp";
+		document.readFrm.submit();
+	}
+	
+</script>
 </head>
 <body>
 	<div id="container">
-		
 		<c:import url="/WEB-INF/views/includes/header.jsp"></c:import>
 		<c:import url="/WEB-INF/views/includes/navigation.jsp"></c:import>
-		
 		<div id="content">
 			<div id="board">
-				<form id="search_form" action="" method="post">
-					<input type="text" id="kwd" name="kwd" value="">
-					<input type="submit" value="찾기">
+			
+				<form id="search_form" action="/mysite/board?a=list" method="get">				
+					<input type="text" id="keyWord" name="keyWord" value="">
+					<input type="submit" value="찾기" >
+	   				<input type="hidden" name="nowPage" value="1">
+					<input type="hidden" name="nowPage" value="1">
 				</form>
+				
 				<table class="tbl-ex">
 					<tr>
 						<th>번호</th>
@@ -44,22 +71,45 @@
 						</tr>
 					</c:forEach>
 				</table>
+				
+			<!-- 페이징 및 블럭 처리 시작 -->
 				<div class="pager">
+					<!-- 전송된 값 확인
+					totalRecord= ${totalRecord }
+					nowPage= ${nowPage }
+					totalPage= ${totalPage }
+					nowBlock= ${nowBlock}
+					totalBlock= ${totalBlock }
+					pageStart= ${pageStart }
+					pageEnd= ${pageEnd }
+					start= ${start }
+					-->
+				<c:if test="${totalPage != 0}">
 					<ul>
-						<li><a href="">◀</a></li>
-						<li><a href="">1</a></li>
-						<li><a href="">2</a></li>
-						<li class="selected">3</li>
-						<li><a href="">4</a></li>
-						<li><a href="">5</a></li>
-						<li><a href="">6</a></li>
-						<li><a href="">7</a></li>
-						<li><a href="">8</a></li>
-						<li><a href="">9</a></li>
-						<li><a href="">10</a></li>
-						<li><a href="">▶</a></li>
+						<c:if test="${nowBlock > 1}">
+							<li><a href="javascript:block('${nowBlock -1 }')">◀</a></li>
+						</c:if>		
+									
+						<c:forEach begin="${pageStart}" end="${pageEnd}" var="currentPage">
+						    <c:url value="javascript:pageing('${currentPage}')" var="pageLink"/>
+						    <c:choose>
+						        <c:when test="${currentPage eq nowPage}">
+						            <li class="selected">[${currentPage}]</li>
+						        </c:when>
+						        <c:otherwise>
+						            <li><a href="${pageLink}">[${currentPage}]</a></li>
+						        </c:otherwise>
+						    </c:choose>
+						</c:forEach>
+			
+						<c:if test="${totalBlock > nowBlock}">
+							<li><a href="javascript:block('${nowBlock +1 }')">▶</a></li>
+						</c:if>
+						
 					</ul>
-				</div>				
+				</c:if>
+			<!-- 페이징 및 블럭 처리 끝 -->
+				</div>						
 				<c:if test="${authUser != null }">
 					<div class="bottom">
 						<a href="/mysite/board?a=writeform" id="new-book">글쓰기</a>
@@ -67,9 +117,17 @@
 				</c:if>				
 			</div>
 		</div>
-		
-		<c:import url="/WEB-INF/views/includes/footer.jsp"></c:import>
-		
+		<form name="listFrm" method="post" action= "/mysite/board?a=list">
+			<input type="hidden" name="reload" value="true"> 
+			<input type="hidden" name="nowPage" value="1">
+		</form>
+		<form name="readFrm" method="get">
+			<input type="hidden" name="num"> 
+			<input type="hidden" name="nowPage" value="${nowPage }"> 
+			<input type="hidden" name="keyField" value="${keyField }"> 
+			<input type="hidden" name="keyWord" value="${keyWord }">
+		</form>
+			<c:import url="/WEB-INF/views/includes/footer.jsp"></c:import>
 	</div><!-- /container -->
 </body>
 </html>		

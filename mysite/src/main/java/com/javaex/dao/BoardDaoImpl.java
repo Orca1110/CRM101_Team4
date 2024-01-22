@@ -24,56 +24,83 @@ public class BoardDaoImpl implements BoardDao {
     return conn;
   }
 
-  public List<BoardVo> getList() {
-    Connection conn = null;
-    PreparedStatement pstmt = null;
-    ResultSet rs = null;
-    List<BoardVo> list = new ArrayList<BoardVo>();
+  public List<BoardVo> getList(String keyField, String keyWord, int start, int end) {
+	    Connection conn = null;
+	    PreparedStatement pstmt = null;
+	    ResultSet rs = null;
+	    List<BoardVo> list = new ArrayList<>();
 
-    try {
-      conn = getConnection();
+	    try {
+	        conn = getConnection();
 
-      String query = "select b.no, b.title, b.hit, b.reg_date, b.user_no, u.name "
-          + " from board b, users u "
-          + " where b.user_no = u.no "
-          + " order by no desc";
+	        if(keyWord.equals("null") || keyWord.equals("")) {
+	        	// 수정된 쿼리: 게시물 목록을 가져오는 쿼리에 rownum 조건을 적용
+	        	String query = "SELECT * FROM ( "
+	        			+ "  SELECT ROWNUM RN, A.* FROM ( "
+	        			+ "    SELECT B.NO, B.TITLE, U.NAME, B.HIT, B.REG_DATE, U.NO AS USER_NO "
+	        			+ "    FROM BOARD B, USERS U "
+	        			+ "    WHERE B.USER_NO = U.NO "
+	        			+ "    ORDER BY NO DESC "
+	        			+ "  ) A "
+	        			+ "  WHERE ROWNUM <= ?+? "
+	        			+ ") WHERE RN > ?";
+	        	
+	        	pstmt = conn.prepareStatement(query);
+	        	pstmt.setInt(1, start);
+	        	pstmt.setInt(2, end);
+	        	pstmt.setInt(3, start);
+	        } else {
+	        	//검색 필드 & 검색어 조건이 추가된 쿼리
+	        	String query = "SELECT * \r\n"
+	        			+ "FROM (   SELECT ROWNUM RN, A.* \r\n"
+	        			+ "			FROM (    SELECT B.NO, B.TITLE, U.NAME, B.HIT, B.REG_DATE, U.NO AS USER_NO    \r\n"
+	        			+ "						FROM BOARD B, USERS U    \r\n"
+	        			+ "						WHERE B.USER_NO = U.NO\r\n"
+	        			+ "						AND B.TITLE LIKE ? \r\n"
+	        			+ "						ORDER BY NO DESC   ) A \r\n"
+	        			+ "			WHERE ROWNUM <= ?+? )\r\n"
+	        			+ "WHERE RN > ?";
+	        	
+	        	pstmt = conn.prepareStatement(query);
+				pstmt.setString(1, "%" + keyWord + "%");
+				pstmt.setInt(2, start);
+				pstmt.setInt(3, end);
+				pstmt.setInt(4, start);
+	        }
 
-      pstmt = conn.prepareStatement(query);
+	        rs = pstmt.executeQuery();
+	        
+	        while (rs.next()) {
+	            int no = rs.getInt("NO");
+	            String title = rs.getString("TITLE");
+	            int hit = rs.getInt("HIT");
+	            String regDate = rs.getString("REG_DATE");
+	            int userNo = rs.getInt("USER_NO");
+	            String userName = rs.getString("NAME");
 
-      rs = pstmt.executeQuery();
+	            BoardVo vo = new BoardVo(no, title, hit, regDate, userNo, userName);
+	            list.add(vo);
+	        }
+	    } catch (SQLException e) {
+	        System.out.println("error:" + e);
+	    } finally {
+	        try {
+	            if (rs != null) {
+	              rs.close();
+	            }
+	            if (pstmt != null) {
+	              pstmt.close();
+	            }
+	            if (conn != null) {
+	              conn.close();
+	            }
+	          } catch (SQLException e) {
+	            System.out.println("error:" + e);
+	          }
+	        }
 
-      while (rs.next()) {
-        int no = rs.getInt("no");
-        String title = rs.getString("title");
-        int hit = rs.getInt("hit");
-        String regDate = rs.getString("reg_date");
-        int userNo = rs.getInt("user_no");
-        String userName = rs.getString("name");
-
-        BoardVo vo = new BoardVo(no, title, hit, regDate, userNo, userName);
-        list.add(vo);
-      }
-
-    } catch (SQLException e) {
-      System.out.println("error:" + e);
-    } finally {
-      try {
-        if (rs != null) {
-          rs.close();
-        }
-        if (pstmt != null) {
-          pstmt.close();
-        }
-        if (conn != null) {
-          conn.close();
-        }
-      } catch (SQLException e) {
-        System.out.println("error:" + e);
-      }
-    }
-
-    return list;
-  }
+	    return list;
+	}
 
   public BoardVo getBoard(int no) {
     Connection conn = null;
@@ -270,4 +297,42 @@ public class BoardDaoImpl implements BoardDao {
       }
     }
   }
+
+	public int getTotalCount(String keyField, String keyWord) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = null;
+		int totalCount = 0;
+		try {
+			conn = getConnection();
+			if (keyWord.equals("null") || keyWord.equals("")) {
+				sql = "select count(no) from board";
+				pstmt = conn.prepareStatement(sql);
+			} else {
+				sql = "select count(no) from  board where " + keyField + " like ? ";
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, "%" + keyWord + "%");
+			}
+			rs = pstmt.executeQuery();
+			if (rs.next()) {
+				totalCount = rs.getInt(1);
+			}
+		}catch (SQLException e) {
+		      System.out.println("error:" + e);
+	    } finally {
+	      try {
+	        if (pstmt != null) {
+	          pstmt.close();
+	        }
+	        if (conn != null) {
+	          conn.close();
+	        }
+	      } catch (SQLException e) {
+	        System.out.println("error:" + e);
+	      }
+	    }
+		return totalCount;
+	}
+	
 }

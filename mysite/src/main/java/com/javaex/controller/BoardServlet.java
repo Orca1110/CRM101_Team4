@@ -28,13 +28,87 @@ public class BoardServlet extends HttpServlet {
 
 		if ("list".equals(actionName)) {
 			// 리스트 가져오기
+			
+			//페이지네이션
+			int totalRecord=0; //전체레코드수 : 페이징 하려면 계산해야해서 필요함
+			int numPerPage=10; // 페이지당 레코드 수 : (초기값) 페이지당 10개 보여줄게요
+			int pagePerBlock=10; //블럭당 페이지수 
+			
+			int totalPage=0; //전체 페이지 수
+			int totalBlock=0;  //전체 블럭수 
+			
+			int nowPage=1; // 현재페이지
+			int nowBlock=1;  //현재블럭
+			
+			if (request.getParameter("nowPage") != null) {
+				nowPage = Integer.parseInt(request.getParameter("nowPage"));
+			}
+			
+			int start = (nowPage - 1) * numPerPage + 1; //디비의 select 시작번호
+			int end = start + numPerPage - 1; //시작번호로 부터 가져올 select 갯수 : rownum 쓸 때 필요함.
+			
+			String keyWord = "";
+			String keyField = ""; //검색을 위해 준비된 변수들	
+			start = (nowPage * numPerPage) - numPerPage;
+			end = numPerPage;
+			
 			BoardDao dao = new BoardDaoImpl();
-			List<BoardVo> list = dao.getList();
-
+			System.out.println("keyField=[" + keyField + "]");
+			System.out.println("keyWord=["+keyWord+"]");
+			System.out.println("start=["+start+"]");
+			System.out.println("end=["+end+"]");
+			
+			// 페이징 및 검색 파라미터 설정
+			if (request.getParameter("keyWord") != null) {
+			    keyWord = request.getParameter("keyWord");
+			    keyField = request.getParameter("keyField");
+			}
+			if (request.getParameter("reload") != null) {
+			    if (request.getParameter("reload").equals("true")) {
+			        keyWord = "";
+			        keyField = "";
+			    }
+			}
+			 
+			totalRecord = dao.getTotalCount(keyField, keyWord); //1
+			totalPage = (int)Math.ceil((double)totalRecord / numPerPage);  //전체페이지수 1: 올림이나 소수점 버리기
+			nowBlock = (int)Math.ceil((double)nowPage/pagePerBlock); //현재블럭 계산 1		  
+			totalBlock = (int)Math.ceil((double)totalPage / pagePerBlock);  //전체블럭계산 1
+			
+			List<BoardVo> list = dao.getList( keyField, keyWord, start, end);
 			System.out.println(list.toString());
+		    // JSP 페이지로 데이터 전달
+			request.setAttribute("totalRecord", totalRecord);
+			request.setAttribute("nowPage", nowPage);
+			request.setAttribute("numPerPage", numPerPage);
+			request.setAttribute("totalPage", totalPage);
+			request.setAttribute("pagePerBlock", pagePerBlock);
+			request.setAttribute("start", start);
+			request.setAttribute("end", end);
+			request.setAttribute("keyField", keyField);
+			request.setAttribute("keyWord", keyWord);
+			request.setAttribute("listSize", list.size()); // 리스트 사이즈 설정
+				
+
+			int pageStart = (nowBlock - 1) * pagePerBlock + 1; //하단 페이지 시작번호
+			int pageEnd = pageStart + pagePerBlock - 1;
+			if (pageEnd > totalPage) {
+			    pageEnd = totalPage;
+			}
+			
+			request.setAttribute("nowBlock", nowBlock); 
+			request.setAttribute("totalBlock", totalBlock); 
+			request.setAttribute("pageStart", pageStart);
+			request.setAttribute("pageEnd", pageEnd);
+			
+			// BoardServlet.java의 doGet 메서드 내에 로그 추가
+			System.out.println("nowPage: " + nowPage);
+			System.out.println("pageStart: " + pageStart);
+			System.out.println("pageEnd: " + pageEnd);
 
 			// 리스트 화면에 보내기
 			request.setAttribute("list", list);
+			
 			WebUtil.forward(request, response, "/WEB-INF/views/board/list.jsp");
 		} else if ("read".equals(actionName)) {
 			// 게시물 가져오기
