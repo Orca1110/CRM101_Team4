@@ -49,6 +49,7 @@ public class BoardDaoImpl implements BoardDao {
 	        	pstmt.setInt(1, start);
 	        	pstmt.setInt(2, end);
 	        	pstmt.setInt(3, start);
+	        	System.out.println("현재 1번 문장을 사용중입니다. ");
 	        } else {
 	        	//검색 필드 & 검색어 조건이 추가된 쿼리
 	        	String query = "SELECT * \r\n"
@@ -66,6 +67,7 @@ public class BoardDaoImpl implements BoardDao {
 				pstmt.setInt(2, start);
 				pstmt.setInt(3, end);
 				pstmt.setInt(4, start);
+				System.out.println("현재 2번 문장을 사용중입니다. ");
 	        }
 
 	        rs = pstmt.executeQuery();
@@ -313,6 +315,7 @@ public class BoardDaoImpl implements BoardDao {
 				sql = "select count(no) from  board where " + keyField + " like ? ";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setString(1, "%" + keyWord + "%");
+				System.out.println("getTotalCount로 들어오나 봅니다 ");
 			}
 			rs = pstmt.executeQuery();
 			if (rs.next()) {

@@ -40,11 +40,22 @@
 		<div id="content">
 			<div id="board">
 			
-				<form id="search_form" action="/mysite/board?a=list" method="get">				
-					<input type="text" id="keyWord" name="keyWord" value="">
-					<input type="submit" value="찾기" >
-	   				<input type="hidden" name="nowPage" value="1">
+				<form id="search_form" action="/mysite/board?a=list" method="get">
+				<label for="keyField">검색 옵션:</label>
+				<select id="keyField" name="keyField">
+					<option value="u.name" ${param.keyField == 'u.name' ? 'selected' : ''}>글쓴이</option>
+          <option value="b.reg_date" ${param.keyField == 'b.reg_date' ? 'selected' : ''}>작성일</option>
+          <option value="b.title" ${param.keyField == 'b.title' ? 'selected' : ''}>제목</option>
+          <option value="b.content" ${param.keyField == 'b.content' ? 'selected' : ''}>내용</option>
+      	</select>				
+					<input type="text" id="keyWord" name="keyWord" value="${param.keyWord}">
+					<input type="hidden" name="keyWord" value="${param.keyWord}">
+    			<input type="hidden" name="keyField" value="${param.keyField}">
+					<input type="hidden" name="a" value="list">
 					<input type="hidden" name="nowPage" value="1">
+					<input type="hidden" name="nowPage" value="1">
+					<input type="submit" value="찾기" >
+	   			
 				</form>
 				
 				<table class="tbl-ex">

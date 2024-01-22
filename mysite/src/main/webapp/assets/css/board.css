@@ -145,6 +145,7 @@ div.pager  ul {
 	margin:10px auto;
 }
 div.pager  ul li 		  { display:inline-block; margin:5px 0; width:20px ; font-weight:bold; color:#ddd }
+div.pager  c 		  { display:inline-block; margin:5px 0; width:20px ; font-weight:bold; color:#ddd }
 div.pager  ul li.selected { text-decoration: underline; color:#f40808 }
 div.pager  ul li a,
 div.pager  ul li a:visited,
