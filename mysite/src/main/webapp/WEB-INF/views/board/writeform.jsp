@@ -33,6 +33,7 @@
 							</td>
 						</tr>
 						<tr>
+						<!-- 첨부파일 업로드 : 박영훈, 박수빈 -->
 							<td class="label">첨부파일</td>
 							<td><input type="file" name="file"></td>
 							

@@ -71,7 +71,8 @@ public class BoardServlet extends HttpServlet {
 			System.out.println("start=["+start+"]");
 			System.out.println("end=["+end+"]");
 			
-			// 페이징 및 검색 파라미터 설정
+			// 페이징 및 검색 파라미터 설정 : 원하경 , 김규호
+			
 			if (request.getParameter("keyWord") != null) {
 			    keyWord = request.getParameter("keyWord");
 			    keyField = request.getParameter("keyField");
@@ -173,7 +174,7 @@ public class BoardServlet extends HttpServlet {
 			String content = request.getParameter("content");			
 			int userNo = authUser.getNo();
 			
-			//업로드 추가
+			//업로드 추가 : 박영훈, 박수빈
 			Collection<Part> parts = request.getParts();
 			StringBuilder builder = new StringBuilder();
 			

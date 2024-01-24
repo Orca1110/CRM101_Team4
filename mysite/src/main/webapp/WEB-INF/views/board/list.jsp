@@ -33,12 +33,13 @@
 </script>
 </head>
 <body>
+	<!-- 페이징 :  정다윤 -->
 	<div id="container">
 		<c:import url="/WEB-INF/views/includes/header.jsp"></c:import>
 		<c:import url="/WEB-INF/views/includes/navigation.jsp"></c:import>
 		<div id="content">
 			<div id="board">
-			
+				
 				<form id="search_form" action="/mysite/board" method="get">
 					<label for="keyField">검색 옵션:</label>
 					<select id="keyField" name="keyField">

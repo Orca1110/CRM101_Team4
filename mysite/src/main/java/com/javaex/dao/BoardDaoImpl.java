@@ -34,6 +34,9 @@ public class BoardDaoImpl implements BoardDao {
 	        conn = getConnection();
 
 	        if(keyWord.equals("null") || keyWord.equals("")) {
+	        	
+	        	// 페이징 : 정다윤
+	        	
 	        	// 수정된 쿼리: 게시물 목록을 가져오는 쿼리에 rownum 조건을 적용
 	        	String query = "SELECT * FROM ( "
 	        			+ "  SELECT ROWNUM RN, A.* FROM ( "
@@ -51,6 +54,9 @@ public class BoardDaoImpl implements BoardDao {
 	        	pstmt.setInt(3, start);
 	        	System.out.println("현재 1번 문장을 사용중입니다. ");
 	        } else {
+	        	
+	        	//검색 : 원하경 및 김규호
+	        	
 	        	//검색 필드 & 검색어 조건이 추가된 쿼리
 	        	String query = "SELECT * \r\n"
 	        			+ "FROM (   SELECT ROWNUM RN, A.* \r\n"
