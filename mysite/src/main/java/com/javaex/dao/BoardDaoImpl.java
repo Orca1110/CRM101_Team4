@@ -37,7 +37,7 @@ public class BoardDaoImpl implements BoardDao {
 	        	// 수정된 쿼리: 게시물 목록을 가져오는 쿼리에 rownum 조건을 적용
 	        	String query = "SELECT * FROM ( "
 	        			+ "  SELECT ROWNUM RN, A.* FROM ( "
-	        			+ "    SELECT B.NO, B.TITLE, U.NAME, B.HIT, B.REG_DATE, U.NO AS USER_NO "
+	        			+ "    SELECT B.NO, B.TITLE, U.NAME, B.HIT, TO_CHAR(B.REG_DATE, 'yy-mm-dd hh:mi') REG_DATE, U.NO AS USER_NO "
 	        			+ "    FROM BOARD B, USERS U "
 	        			+ "    WHERE B.USER_NO = U.NO "
 	        			+ "    ORDER BY NO DESC "
@@ -54,7 +54,7 @@ public class BoardDaoImpl implements BoardDao {
 	        	//검색 필드 & 검색어 조건이 추가된 쿼리
 	        	String query = "SELECT * \r\n"
 	        			+ "FROM (   SELECT ROWNUM RN, A.* \r\n"
-	        			+ "			FROM (    SELECT B.NO, B.TITLE, U.NAME, B.HIT, B.REG_DATE, U.NO AS USER_NO    \r\n"
+	        			+ "			FROM (    SELECT B.NO, B.TITLE, U.NAME, B.HIT, TO_CHAR(B.REG_DATE, 'yy-mm-dd hh:mi') REG_DATE, U.NO AS USER_NO    \r\n"
 	        			+ "						FROM BOARD B, USERS U    \r\n"
 	        			+ "						WHERE B.USER_NO = U.NO \r\n"
 	        			+ "						AND "+ keyField +" LIKE ? \r\n"
