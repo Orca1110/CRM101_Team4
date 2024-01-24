@@ -47,12 +47,11 @@
 						<option value="title" >제 목</option>
 						<option value="content" >내 용</option>
 			      	</select>				
-					<input type="text" id="keyWord" name="keyWord" value="${param.keyWord}">
-    				<input type="hidden" name="keyField" value="${param.keyField}">
 					<input type="hidden" name="a" value="list">
+    				<input type="hidden" name="keyField" value="${param.keyField}">
+					<input type="text" id="keyWord" name="keyWord" value="${param.keyWord}">
 					<input type="hidden" name="nowPage" value="1">
 					<input type="submit" value="찾기" >
-	   			
 				</form>
 				
 				<table class="tbl-ex">
@@ -92,7 +91,6 @@
 					pageEnd= ${pageEnd }
 					start= ${start }
 					-->
-
 				<c:if test="${totalPage != 0}">
 					<ul>
 						<c:if test="${nowBlock > 1}">
@@ -100,8 +98,7 @@
 						</c:if>
 									
 						<c:forEach begin="${pageStart}" end="${pageEnd}" var="currentPage">
-						    <c:url value="javascript:pageing('${currentPage}')" var="pageLink"/>
-						    <c:choose>
+						    <c:set var="pageLink" value="/mysite/board?keyField=${keyField}&keyWord=${keyWord}&a=list&nowPage=${currentPage}" />						    <c:choose>
 						        <c:when test="${currentPage eq nowPage}">
 						            <li class="selected">[${currentPage}]</li>
 						        </c:when>
