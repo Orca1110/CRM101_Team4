@@ -33,7 +33,20 @@
 								${fn:replace(boardVo.content, newLine, "<br>")}
 							</div>
 						</td>
-					</tr>
+						<tr>
+							<td class="label">첨부파일</td>
+							<td>
+								<input type="file" name ="uploadFile">
+								<input type="submit" value="UPLOAD"> <!-- 이거는 나주에 없앨것 -->
+							</td>
+						</tr>
+						<tr>
+							<td class="label">첨부파일</td>
+							<td>
+								<input type="file" name ="uploadFile">
+								<input type="submit" value="UPLOAD"> <!-- 이거는 나주에 없앨것 -->
+							</td>
+						</tr>
 				</table>
 				<div class="bottom">
 					<a href="/mysite/board">글목록</a>
