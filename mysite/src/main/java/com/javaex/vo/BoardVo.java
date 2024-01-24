@@ -9,6 +9,38 @@ public class BoardVo {
 	private String regDate;
 	private int userNo;
 	private String userName;
+	private String fileName;
+	private int fileSize;
+
+	public int getFileSize() {
+		return fileSize;
+	}
+
+	public BoardVo(int no, String title, String content, int hit, String regDate, int userNo, String userName,
+			String fileName, int fileSize) {
+		super();
+		this.no = no;
+		this.title = title;
+		this.content = content;
+		this.hit = hit;
+		this.regDate = regDate;
+		this.userNo = userNo;
+		this.userName = userName;
+		this.fileName = fileName;
+		this.fileSize = fileSize;
+	}
+
+	public void setFileSize(int fileSize) {
+		this.fileSize = fileSize;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
+	}
 
 	public BoardVo() {
 	}
@@ -25,6 +57,13 @@ public class BoardVo {
 		this.userNo = userNo;
 	}
 	
+	
+	
+	public BoardVo(String fileName) {
+		super();
+		this.fileName = fileName;
+	}
+
 	public BoardVo(int no, String title, int hit, String regDate, int userNo, String userName) {
 		this.no = no;
 		this.title = title;
@@ -98,7 +137,15 @@ public class BoardVo {
 	@Override
 	public String toString() {
 		return "BoardVo [no=" + no + ", title=" + title + ", content=" + content + ", hit=" + hit + ", regDate="
-				+ regDate + ", userNo=" + userNo + ", userName=" + userName + "]";
+				+ regDate + ", userNo=" + userNo + ", userName=" + userName + ", fileName=" + fileName + ", fileSize="
+				+ fileSize + "]";
 	}
+
+	public void setFileSize(long size) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	
 
 }

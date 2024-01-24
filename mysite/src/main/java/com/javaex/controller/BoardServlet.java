@@ -1,14 +1,20 @@
 package com.javaex.controller;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
 import com.javaex.dao.BoardDao;
 import com.javaex.dao.BoardDaoImpl;
@@ -16,9 +22,16 @@ import com.javaex.util.WebUtil;
 import com.javaex.vo.BoardVo;
 import com.javaex.vo.UserVo;
 
+@MultipartConfig(
+		fileSizeThreshold = 1024 * 1024,
+		maxFileSize = 1024 * 1024 * 50, // 파일 용량 = 50MB
+		maxRequestSize = 1024 * 1024 * 50 * 2 // 파일 용량 = 50MB * 2 = 100MB까지 한 번에 등록가능
+)
+
 @WebServlet("/board")
 public class BoardServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
+	private static final String SAVEFOLDER = "C:/Users/User/git/CRM101_Team4/mysite/src/main/webapp/upload";
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -157,14 +170,57 @@ public class BoardServlet extends HttpServlet {
 			UserVo authUser = getAuthUser(request);
 
 			String title = request.getParameter("title");
-			String content = request.getParameter("content");
-			
+			String content = request.getParameter("content");			
 			int userNo = authUser.getNo();
+			
+			//업로드 추가
+			Collection<Part> parts = request.getParts();
+			StringBuilder builder = new StringBuilder();
+			
+			
+			for(Part p : parts) {
+				if(!p.getName().equals("file"))continue;
+				if(p.getSize() == 0) continue; 									// 파일을 1개만 올릴 때 해결코드
+				
+				Part filePart = p;
+				filePart.getInputStream();
+				String fileName = filePart.getSubmittedFileName();
+				builder.append(fileName);										// DB에 파일 넣기
+				builder.append(",");											// 파일 구분자 (맨 끝에는 ,가 들어가면 안되기 때문에 173번라인참조)
+				
+				InputStream fis = filePart.getInputStream();
+				String realPath = request.getServletContext().getRealPath("/upload");
+				System.out.println("realPath" + realPath);
+				
+				File path = new File(SAVEFOLDER);
+				if(!path.exists())
+					path.mkdirs();												//경로가 존재 하지 않을 때, 파일 경로 자동생성
+				
+				String filePath = SAVEFOLDER + File.separator + fileName;
+				FileOutputStream fos = new FileOutputStream(filePath);
+				byte[] buf = new byte[1024];
+				int size = 0;
+				while ((size = fis.read(buf)) != -1)
+					fos.write(buf, 0, size); 									// size길이만큼 반복해서 저장
+				
+				fos.close();
+				fis.close();
+				//System.out.println("파일사이즈" + p.getSize());				
+			}
+			
+			 if (builder.length() > 0) {
+				 builder.delete(builder.length()-1, builder.length()); 				//DB에 다중 파일 등록시 마지막 ,삭제하기
+				}
+			
 			System.out.println("userNo : ["+userNo+"]");
 			System.out.println("title : ["+title+"]");
 			System.out.println("content : ["+content+"]");
 
-			BoardVo vo = new BoardVo(title, content, userNo);
+			BoardVo vo = new BoardVo();
+			vo.setTitle(title);
+			vo.setContent(content);
+			vo.setUserNo(userNo);
+			vo.setFileName(builder.toString());
 			BoardDao dao = new BoardDaoImpl();
 			dao.insert(vo);
 

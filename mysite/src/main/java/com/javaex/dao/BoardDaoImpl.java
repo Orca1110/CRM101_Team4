@@ -116,7 +116,7 @@ public class BoardDaoImpl implements BoardDao {
       // Update the hit count when fetching the post
       updateHit(no);
 
-      String query = "select b.no, b.title, b.content, b.hit, b.reg_date, b.user_no, u.name "
+      String query = "select b.no, b.title, b.content, b.hit, b.reg_date, b.user_no, u.name, b.filename "
           + "from board b, users u "
           + "where b.user_no = u.no "
           + "and b.no = ?";
@@ -125,7 +125,8 @@ public class BoardDaoImpl implements BoardDao {
       pstmt.setInt(1, no);
 
       rs = pstmt.executeQuery();
-
+      System.out.println(query);
+      
       while (rs.next()) {
         String title = rs.getString("title");
         String content = rs.getString("content");
@@ -133,8 +134,10 @@ public class BoardDaoImpl implements BoardDao {
         String regDate = rs.getString("reg_date");
         int userNo = rs.getInt("user_no");
         String userName = rs.getString("name");
+        String fileName = rs.getString("filename");
 
         boardVo = new BoardVo(no, title, content, hit, regDate, userNo, userName);
+        boardVo.setFileName(fileName);
       }
 
     } catch (SQLException e) {
@@ -170,15 +173,15 @@ public class BoardDaoImpl implements BoardDao {
       System.out.println("vo.title : [" + vo.getTitle() + "]");
       System.out.println("vo.content : [" + vo.getContent() + "]");
 
-      String query = "insert into board values (seq_board_no.nextval, ?, ?, 0, sysdate, ?,0,0,0)";
+      String query = "insert into board(no, title, content, hit, reg_date, user_no, filename ) values (seq_board_no.nextval, ?, ?, 0, sysdate, ?,?)";
       pstmt = conn.prepareStatement(query);
 
       pstmt.setString(1, vo.getTitle());
       pstmt.setString(2, vo.getContent());
       pstmt.setInt(3, vo.getUserNo());
-
+      pstmt.setString(4, vo.getFileName());
       count = pstmt.executeUpdate();
-
+      System.out.println(query);
       System.out.println(count + "건 등록");
 
     } catch (SQLException e) {
